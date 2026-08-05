@@ -39,9 +39,10 @@ export function AppContextProvider({ children }) {
             navigate("/")
 
         }catch(error){
-            console.error("login failed:",err);
-            const errMsg = err?.response?.data?.error || "Invalid E-mail or Password";
+            console.error("login failed:",error);
+            const errMsg = error?.response?.data?.error || "Invalid E-mail or Password";
             toast.error(errMsg);
+            throw new Error(errMsg);
         }
     }
     const register = async(name, email, password) =>{
