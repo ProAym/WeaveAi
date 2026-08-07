@@ -196,7 +196,8 @@ export function AppContextProvider({ children }) {
             loadProject,
             loadProjects,
             handleGenerate,
-            handleDelete
+            handleDelete,
+            logout
 
             }}>
             {children}
