@@ -2,8 +2,8 @@ import React from 'react'
 
 const BuilderPage = () => {
   return (
-    <div>
-      
+    <div className='text-lg'>
+      wa rah builder page hadi
     </div>
   )
 }
