@@ -22,9 +22,6 @@ const BuilderPage = () => {
   const [publishing, setPublishing] = useState(false);
   const [publishUrl, setPublishUrl] = useState(null);
 
-  
-
-
   const {activeProjects,loadingActiveProjects, activeFile, showCode, 
     setActiveFile, setShowCode, loadProject, logout, chatLoading, handleChat} = useAppContext();
 
@@ -33,17 +30,6 @@ const BuilderPage = () => {
     if(!id) return;
     loadProject(id)
   }, [id, loadProject]);
-
-  useEffect(()=>{
-    if(!id || !activeProjects) return;
-    if(activeProjects.status === "pending" || activeProjects.status === "generating"){
-      const interval =  setInterval(() =>{
-        loadProject(id, true)
-      },1500)
-      return () => clearInterval(interval)
-    }
-  }, [id, loadProject, activeProjects]);
-
 
   const handleOpenPreview = () =>{
     if(!id) return;
