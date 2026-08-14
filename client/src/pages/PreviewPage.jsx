@@ -8,9 +8,8 @@ import {useAppContext} from '../context/AppContext'
 
 const PreviewPage = () => {
   const {id} = useParams()
-  const {activeProjects : project, loadingActiveProject : loading, loadProject} = useAppContext()
+  const {activeProjects : project, loadingActiveProjects : loading, loadProject} = useAppContext()
   
-
   useEffect(() =>{
     if(id){
       loadProject(id)
