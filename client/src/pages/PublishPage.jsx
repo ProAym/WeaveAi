@@ -14,6 +14,12 @@ const PublishPage = () => {
   useEffect(() =>{
     if(!id) return;
 
+    let active = true;
+
+    setLoading(true);
+    setError("");
+    setProject(null);
+
     const fetchPublicProject = async ()=>{
       try {
         const {data} = await api.get(`/api/projects/public/${id}`)
@@ -21,13 +27,22 @@ const PublishPage = () => {
         
       } catch (err) {
         console.error("Failed to load public project: ", err)
-        setError(err?.response?.data?.error || "This Website is not available or is not published yet.");
+        if(active){
+          setError(err?.response?.data?.error || "This Website is not available or is not published yet.");
+        }
+        
       }finally{
-        setLoading(false)
+        if(active){
+           setLoading(false)
+        }
       }
     }
 
     fetchPublicProject();
+
+    return () =>{
+      active = false;
+    };
     
   },[id])
 
@@ -43,7 +58,7 @@ const PublishPage = () => {
         text-red-600 mb-4'>
           <AlertCircleIcon  size={24}/>
         </div>
-        <h1 className='text-lg font-semibold text-zinc-900 mb-1.5'>Website Unvailable</h1>
+        <h1 className='text-lg font-semibold text-zinc-900 mb-1.5'>Website Unavailable</h1>
         <p className='text-sm text-zinc-500 max-w-sm leading-relaxed mb-6'>{error}</p>
         <div className='text-[10px] font-semibold uppercase tracking-widest text-zinc-400'>BuilderAI</div>
       </div>
