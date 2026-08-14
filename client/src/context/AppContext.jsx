@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState, useMemo } from "react";
 import api from "../api/api";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce"
 
 
 const AppContext = createContext(undefined);
@@ -38,8 +39,8 @@ export function AppContextProvider({ children }) {
     }
 
     useEffect(() =>{
-    checkSession()}, 
-    [checkSession])
+    checkSession()
+},[])
 
     const login = async(email, password) =>{
         try{
@@ -63,7 +64,7 @@ export function AppContextProvider({ children }) {
 
             navigate("/")
 
-        }catch(error){
+        }catch(err){
             console.error("Registration failed:",err);
             const errMsg = err?.response?.data?.error || "Registration failed";
             toast.error(errMsg);
@@ -98,22 +99,22 @@ export function AppContextProvider({ children }) {
         }
     }
 
-    const loadProject = async (id, silent = false) => {
+    const loadProject = useCallback(async (id, silent = false) => {
         if(!user) return;
         if(!silent) setLoadingActiveProjects(true)
-            try{
-               const {data} = await api.get(`/api/projects/${id}`)
-               setActiveProjects(data);
-               
-               //Default file selection
-               const files = Object.keys(data.files);
-               if(!files.length > 0){
-                setActiveFile((prev) =>{
-                    if(files.includes(prev)) return prev;
-                    if(files.includes("/App.js")) return "/App.js";
-                    return files[0]
-                })
-               }
+        try{
+        const {data} = await api.get(`/api/projects/${id}`)
+           setActiveProjects(data);
+           
+           //Default file selection
+           const files = Object.keys(data.files);
+           console.log("file keys:", files, "current activeFile:", activeFile); // 👈 add this line
+           if(files.length > 0){
+                setActiveFile((prev) => {
+                console.log("prev:", prev, "isIncluded:", files.includes(prev), "willSet:", files.includes(prev) ? prev : files[0]);
+                return files.includes(prev) ? prev : files[0];
+    })
+            }
         }catch(err){
             console.error("Failed to load projects: ",err)
             if(!silent){
@@ -123,7 +124,7 @@ export function AppContextProvider({ children }) {
         }finally{
             if(!silent) setLoadingActiveProjects(false)
         }
-    }
+    }, [user, navigate]);
 
     // Automatically poll active project status if generating or pending
     useEffect(() => {
@@ -177,6 +178,67 @@ export function AppContextProvider({ children }) {
         }, [user]
     )
 
+
+    const handleChat = useCallback(
+        async (prompt) =>{
+            if(!activeProjects || !user) return;
+            setChatLoading(true)
+            try {
+                const{data} = await api.post(`/api/projects/${activeProjects._id}/chat`, {prompt});
+                setActiveProjects(data)
+                if(data.errors && data.errors.length > 0){
+                    toast.error(`${data.errors.length} revision patch(es) failed`);
+                }else{
+                    toast.success(`Updated to version ${data.version}`);
+                }
+            } catch (err) {
+                console.error("Revisio request failed:", err);
+                toast.error(err?.response?.data?.error || "Revision request failed");
+            }finally{
+                setChatLoading(false)
+            }
+
+        },[activeProjects, user]
+    )
+    const debouncedSaveRef = React.useRef(new Map());
+
+const getDebouncedSave = React.useCallback((id) => {
+    if (!debouncedSaveRef.current.has(id)) {
+        debouncedSaveRef.current.set(
+            id,
+            debounce(async (files) => {
+                try {
+                    await api.put(`/api/projects/${id}/files`, { files });
+                } catch (err) {
+                    console.error("Failed to auto-save files:", err);
+                    toast.error("Failed to save code modifications");
+                }
+            }, 1000)
+        );
+    }
+    return debouncedSaveRef.current.get(id);
+}, []);
+
+const debouncedSave = React.useCallback((files, id) => {
+    getDebouncedSave(id)(files);
+}, [getDebouncedSave]);
+
+React.useEffect(() => {
+    return () => {
+        debouncedSaveRef.current.forEach((fn) => fn.flush());
+        debouncedSaveRef.current.clear();
+    };
+}, []);
+
+
+
+    const updateProjectFiles = useCallback(
+        async (files) =>{
+            if(!activeProjects || !user) return;
+            debouncedSave(files, activeProjects._id)
+        },[activeProjects, user, debouncedSave ]
+    )
+
     return (
         <AppContext.Provider value= {{
             user,
@@ -197,7 +259,9 @@ export function AppContextProvider({ children }) {
             loadProjects,
             handleGenerate,
             handleDelete,
-            logout
+            logout,
+            updateProjectFiles,
+            handleChat
 
             }}>
             {children}
