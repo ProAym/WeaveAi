@@ -3,11 +3,15 @@ import React from 'react'
 import toast from 'react-hot-toast';
 
 const PublishModel = ({publishUrl, onClose}) => {
-    const handleCopyLink = () =>{
-        if(!publishUrl) return;
-        navigator.clipboard.writeText(publishUrl);
-        toast.success("Public Link Copied to cliboard!")
+    const handleCopyLink = async () => {
+    if (!publishUrl) return;
+    try {
+        await navigator.clipboard.writeText(publishUrl);
+        toast.success("Public Link Copied to clipboard!");
+    } catch (err) {
+        toast.error("Failed to copy link");
     }
+}
   return (
     <div className='absolute inset-0 bg-zinc-950/40 backdrop-blur-xs flex items-center
     justify-center z-50'>

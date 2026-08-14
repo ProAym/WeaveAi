@@ -200,22 +200,35 @@ export function AppContextProvider({ children }) {
 
         },[activeProjects, user]
     )
-    const debouncedSave = React.useMemo(
-        ()=>debounce(async(files, id) => {
-            try {
-                await api.put(`/api/projects/${id}/files`, {files})
-            } catch (err) {
-                console.error("Failed to auto-save files:", err);
-                toast.error("Failed to save code modifications");
-            }
-        }, 1000), [],
-    )
+    const debouncedSaveRef = React.useRef(new Map());
 
-    useEffect(()=>{
-        return ()=>{
-            debouncedSave.cancel()
-        }
-    }, [debouncedSave])
+const getDebouncedSave = React.useCallback((id) => {
+    if (!debouncedSaveRef.current.has(id)) {
+        debouncedSaveRef.current.set(
+            id,
+            debounce(async (files) => {
+                try {
+                    await api.put(`/api/projects/${id}/files`, { files });
+                } catch (err) {
+                    console.error("Failed to auto-save files:", err);
+                    toast.error("Failed to save code modifications");
+                }
+            }, 1000)
+        );
+    }
+    return debouncedSaveRef.current.get(id);
+}, []);
+
+const debouncedSave = React.useCallback((files, id) => {
+    getDebouncedSave(id)(files);
+}, [getDebouncedSave]);
+
+React.useEffect(() => {
+    return () => {
+        debouncedSaveRef.current.forEach((fn) => fn.flush());
+        debouncedSaveRef.current.clear();
+    };
+}, []);
 
 
 

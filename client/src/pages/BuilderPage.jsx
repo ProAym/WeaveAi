@@ -50,18 +50,18 @@ const BuilderPage = () => {
     window.open(`/preview/${id}`, "_blank")
   }
 
-  const handlePublish = async() =>{
-    if(!id) return;
+  const handlePublish = async () => {
+    if (!id) return;
     setPublishing(true)
     try {
-      await api.post(`/api/projects${id}/publish`);
+      await api.post(`/api/projects/${id}/publish`);
       const url = `${window.location.origin}/publish/${id}`;
       setPublishUrl(url);
       toast.success("Website published successfully!")
     } catch (err) {
       console.error("Publish failed: ", err);
       toast.error(err?.response?.data?.error || "Publish failed!");  
-    }finally{
+    } finally {
       setPublishing(false)
     }
   }
