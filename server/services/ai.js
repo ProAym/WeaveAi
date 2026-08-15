@@ -1,3 +1,4 @@
+import { searchUnsplashImages } from './unsplash.js';
 import {createOpenAI} from '@ai-sdk/openai'
 import { generateObject } from 'ai';
 import pMap from "p-map";
@@ -19,8 +20,8 @@ const openrouter = createOpenAI({
 const model = openrouter(MODEL);
 
 // Generate a single file's code
-async function generateSingleFile(file, allFiles, prompt, alreadyGeneratedFiles){
-     const system = buildFileCodeSystem(allFiles, alreadyGeneratedFiles);
+async function generateSingleFile(file, allFiles, prompt, alreadyGeneratedFiles, availableImages){
+     const system = buildFileCodeSystem(allFiles, alreadyGeneratedFiles, file, availableImages);
 
      const userMsg = `Project: ${prompt}\n\nWrite the complete code for: ${file.path}\nPurpose: ${file.description}`;
 
@@ -85,9 +86,9 @@ export async function generateProject(prompt, callbacks){
     if(callbacks?.onPlan){
         await callbacks.onPlan(plan)
     }
+    const availableImages = await searchUnsplashImages(prompt, 15);
 
     console.log(`[AI] Phase 2: Generating ${plan.files.length} files in parallel (concurrency=${MAX_CONCURRENCY}): ${plan.files.map((f)=> f.path).join(", ")}`);
-
 
     const files = {};
     let pendingFiles = plan.files.map((f)=>({...f}));
@@ -111,7 +112,7 @@ export async function generateProject(prompt, callbacks){
                         await callbacks.onFileStart(file.path)
                     }
 
-                    const singleResult = await generateSingleFile(file, plan.files, prompt, files)
+                    const singleResult = await generateSingleFile(file, plan.files, prompt, files, availableImages)
 
                     if(callbacks?.onFileComplete){
                         await callbacks.onFileComplete(file.path, singleResult.code)
@@ -141,7 +142,7 @@ export async function generateProject(prompt, callbacks){
         const failedPaths = pendingFiles.map((f)=>f.path).join(", ");
         console.error(`[AI] Failed to generate ${pendingFiles.length} files after all retry rounds: ${failedPaths}`);
 
-        if (pendingFiles.some((f) => f.path === "/App.js")){
+        for (const file of pendingFiles) {
             const ext = file.path.split(".").pop()?.toLowerCase();
 
             if(ext === "css"){
@@ -159,7 +160,6 @@ export async function generateProject(prompt, callbacks){
                     "}\n";
             }
         }
-
     }
 
     if(!files["/App.js"]){
@@ -169,7 +169,9 @@ export async function generateProject(prompt, callbacks){
     return {files, description: plan.projectDescription}
 }
 
-export async function reviseProject(prompt, manifest, relevantFiles, recentMessages){
+export async function reviseProject(prompt, manifest, relevantFiles, recentMessages,  options = {}){
+    const { abortSignal } = options;
+    const availableImages = await searchUnsplashImages(prompt, 15);
     const contextParts = [];
 
     contextParts.push("## Current Project Files (manifest)");
@@ -202,7 +204,8 @@ export async function reviseProject(prompt, manifest, relevantFiles, recentMessa
         schema: RevisionResultSchema,
         system: REVISE_SYSTEM,
         prompt: contextParts.join("\n"),
-        maxRetries: 2
+        maxRetries: 2,
+        abortSignal,
     })
 
     if(rawParsed && Array.isArray(rawParsed.operations)){

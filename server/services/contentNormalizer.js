@@ -22,11 +22,9 @@ export function normalizeContent(content) {
             .replace(/\\t/g, "\t")
             .replace(/\\r/g, "")
             .replace(/\\\\/g, "\\");
+
+        // Only safe to unescape quotes when the payload was double-escaped.
+        content = content.replace(/(\w+)=\\"([^"]*?)\\"/g, '$1="$2"');
     }
-
-    // Always clean up backslash-escaped quotes (e.g. className=\"relative\") in code.
-    // This is safe because "contains escaped quotes" is always invalid syntax in JSX/React.
-    content = content.replace(/(\w+)=\\"([^"]*?)\\"/g, '$1="$2"');
-
     return content;
 }

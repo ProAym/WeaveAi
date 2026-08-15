@@ -176,23 +176,11 @@ Do NOT generate custom SVG icons. Use Font Awesome exclusively.
 
 ---
 
-## 7. IMAGES (Unsplash — VERIFIED URLS ONLY)
+## 7. IMAGES (Unsplash — USE ONLY PROVIDED URLS)
 
-NEVER use \`source.unsplash.com\` (deprecated). Use ONLY this exact format:
-\`https://images.unsplash.com/[photo-id]?auto=format&fit=crop&w=800&q=80\`
+NEVER use \`source.unsplash.com\` (deprecated). NEVER invent your own Unsplash photo IDs from memory — hallucinated IDs produce broken images.
 
-Verified photo IDs by category:
-- **Developer/Tech**: \`photo-1498050108023-c5249f4df085\`, \`photo-1486312338219-ce68d2c6f44d\`, \`photo-1555066931-4365d14bab8c\`
-- **Dashboard/SaaS**: \`photo-1531403009284-440f080d1e12\`, \`photo-1607798748738-b15c40d33d57\`, \`photo-1460925895917-afdab827c52f\`
-- **Abstract/Background**: \`photo-1618005182384-a83a8bd57fbe\`, \`photo-1557683316-973673baf926\`, \`photo-1519608487953-e999c86e7455\`
-- **Team/Testimonials (Female)**: \`photo-1494790108377-be9c29b29330\`, \`photo-1534528741775-53994a69daeb\`, \`photo-1438761681033-6461ffad8d80\`
-- **Team/Testimonials (Male)**: \`photo-1507003211169-0a1dd7228f2d\`, \`photo-1500648767791-00dcc994a43e\`, \`photo-1472099645785-5658abf4ff4e\`
-- **Business/Office**: \`photo-1486406146926-c627a92ad1ab\`, \`photo-1454165804606-c3d57bc86b40\`
-- **Product/Ecommerce**: \`photo-1523275335684-37898b6baf30\`, \`photo-1491553895911-0055eca6402d\`
-- **Food**: \`photo-1476224203421-9ac39bcb3327\`, \`photo-1565299624946-b28f40a0ae38\`
-- **Nature**: \`photo-1470071459604-3b5ec3a7fe05\`, \`photo-1507525428034-b723cf961d3e\`
-
----
+You will be given a list titled "AVAILABLE IMAGES FOR THIS PROJECT" further down in this prompt, containing real, verified URLs relevant to this project's actual topic. Use ONLY images from that list, matching each one to the section it best fits (hero, team, product, etc.) based on its description. If there aren't enough for every section, reuse images rather than inventing new ones.
 
 ## 8. COPY WRITING STANDARDS
 
@@ -237,6 +225,8 @@ You are revising an existing React project. You will receive:
 1. A file manifest showing all current files (path, hash, size in bytes)
 2. The user's revision request
 3. Recent conversation context
+4. (When relevant) A list of AVAILABLE IMAGES you may use — use ONLY these URLs, never invent your own Unsplash IDs
+
 
 You MUST respond with a valid JSON object of this exact shape:
 {
@@ -301,7 +291,14 @@ Rules:
 - Each description should be one sentence explaining what that file does
 - Do NOT write any code — only plan the file list`;
 
-export function buildFileCodeSystem(allFiles, alreadyGeneratedFiles) {
+const MAX_CONTEXT_FILE_CHARS = 2000;
+
+function normalizeImportPath(p) {
+    if (!p) return p;
+    return p.replace(/^\.\//, "/").replace(/^(?!\/)/, "/");
+}
+
+export function buildFileCodeSystem(allFiles, alreadyGeneratedFiles, currentFile, availableImages) {
     const fileList = allFiles
         .map((f) => {
             const impStr = f.imports && f.imports.length > 0 ? ` (Imports: ${f.imports.join(", ")})` : "";
@@ -312,19 +309,35 @@ export function buildFileCodeSystem(allFiles, alreadyGeneratedFiles) {
 
     let contextStr = "";
     if (alreadyGeneratedFiles && Object.keys(alreadyGeneratedFiles).length > 0) {
-        contextStr =
-            "\n\nCRITICAL CONTEXT — Already Generated Files:\n" +
-            "The following files have already been generated. You MUST align your exports, imports, CSS selectors, or props signatures EXACTLY with these files:\n";
-        for (const [path, code] of Object.entries(alreadyGeneratedFiles)) {
-            contextStr += `\nFile: ${path}\n\`\`\`javascript\n${code}\n\`\`\`\n`;
+        const importedPaths = new Set((currentFile?.imports || []).map(normalizeImportPath));
+        const relevantEntries = Object.entries(alreadyGeneratedFiles).filter(([path]) =>
+            importedPaths.has(normalizeImportPath(path)),
+        );
+
+        if (relevantEntries.length > 0) {
+            contextStr =
+                "\n\nCRITICAL CONTEXT — Already Generated Files:\n" +
+                "The following files have already been generated. You MUST align your exports, imports, CSS selectors, or props signatures EXACTLY with these files:\n";
+            for (const [path, code] of relevantEntries) {
+                const truncated = code.length > MAX_CONTEXT_FILE_CHARS;
+                const snippet = truncated ? code.slice(0, MAX_CONTEXT_FILE_CHARS) + "\n// ...(truncated)" : code;
+                contextStr += `\nFile: ${path}\n\`\`\`javascript\n${snippet}\n\`\`\`\n`;
+            }
         }
+    }
+
+    let imagesStr = "";
+    if (availableImages && availableImages.length > 0) {
+        imagesStr =
+            "\n\nAVAILABLE IMAGES FOR THIS PROJECT (use ONLY these — do not invent your own):\n" +
+            availableImages.map((img) => `- ${img.url} — ${img.description}`).join("\n");
     }
 
     return `${BASE_SYSTEM}
 
 You are writing a SINGLE file for a React project.
 The full project file structure is:
-${fileList}${contextStr}
+${fileList}${contextStr}${imagesStr}
 
 Write ONLY the code for the specific file the user requests.
 Return a JSON object with exactly this shape:

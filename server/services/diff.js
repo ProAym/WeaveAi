@@ -4,6 +4,15 @@ export function hashContent(content) {
     return crypto.createHash("md5").update(content).digest("hex").slice(0, 12);
 }
 
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+function isUnsafePath(path) {
+    if (typeof path !== "string") return true;
+    // Guard against the literal key and any path segment matching it
+    // (e.g. "/__proto__/foo" split on "/")
+    return path.split("/").some((segment) => UNSAFE_KEYS.has(segment));
+}
+
 // Apply AI file operations (create, update, delete) to project files
 export function applyOperations(currentFiles, operations) {
     const files = { ...currentFiles };
@@ -12,6 +21,11 @@ export function applyOperations(currentFiles, operations) {
 
     for (const op of operations) {
         try {
+            if (isUnsafePath(op.path)) {
+                errors.push(`${op.op} ${op.path}: unsafe or invalid path`);
+                continue;
+            }
+
             switch (op.op) {
                 case "create": {
                     if (!op.content) {
