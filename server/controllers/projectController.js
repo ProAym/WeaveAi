@@ -2,11 +2,10 @@ import { Project } from "../models/Project.js";
 import crypto from "crypto";
 import { generateProject } from "../services/ai.js";
 import { timeStamp } from "console";
+import { hashContent } from "../services/diff.js";
 
 
-function hashContent(){
-    return crypto.createHash("md5").update(content).digest("hex").slice(0,12)
-}
+
 
  //POST /api/projects
 //Create a new project from an ai prompt
@@ -87,7 +86,7 @@ async function runBackgroundGeneration(projectId, prompt){
                     currentFile: path,
                 })
             },
-            onFileComplete: async (path)=>{
+            onFileComplete: async (path, code)=>{
                 console.log(`[Background AI] Finished file ${path} for project ${projectId}`);
                 const project = await Project.findById(projectId);
 
@@ -110,7 +109,7 @@ async function runBackgroundGeneration(projectId, prompt){
 
         const project = await Project.findById(projectId);
         if(project){
-            project.status = "Completed";
+            project.status = "completed";
             project.version = 1;
             if(result.description){
                 project.name = result.description;
@@ -125,7 +124,7 @@ async function runBackgroundGeneration(projectId, prompt){
 
     } catch (err) {
         console.error(`[Background AI] Fatal generation error for project ${projectId}:`, err);
-        await project.findByIdAndUpdate(projectId, {
+        await Project.findByIdAndUpdate(projectId, {
             status: "failed",
             error: err.message,
             $push: {
@@ -237,21 +236,19 @@ export async function updateProjectFiles(req, res){
         return;
     }
     //REBUILD PROJECT FILES  MAP WITH  CONTENT & HASHES
-    const newFile = {};
+    const newFiles = {};
     for(const [path, content] of Object.entries(files)){
         if(typeof content === "string"){
             newFiles[path] = {content, hash: hashContent(content)}
         }
     }
 
-    project.files = newFilesş
+    project.files = newFiles
     await project.save();
 
     const filesObj = {};
     for(const [path, entry] of Object.entries(project.files)){
-        if(typeof content === "string"){
-            filesObj[path] = entry.content;
-        }
+        filesObj[path] = entry.content;
     }
     
     res.json({

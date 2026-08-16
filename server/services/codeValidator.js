@@ -4,6 +4,17 @@
 // Void HTML elements that must be self-closed in JSX
 const VOID_ELEMENTS = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"];
 
+function selfCloseVoidElements(code, filePath, warnings) {
+    for (const tag of VOID_ELEMENTS) {
+        const voidRegex = new RegExp(`<${tag}(\\s[^>]*?)?(?<!/)>`, "g");
+        if (voidRegex.test(code)) {
+            code = code.replace(new RegExp(`<${tag}(\\s[^>]*?)?(?<!/)>`, "g"), (match, attrs) => `<${tag}${attrs || ""} />`);
+            warnings.push(`${filePath}: Self-closed <${tag}> elements`);
+        }
+    }
+    return code;
+}
+
 // Validate and auto-fix common AI-generated code issues
 export function validateAndFixCode(code, filePath, context) {
     const warnings = [];
@@ -49,14 +60,7 @@ export function validateAndFixCode(code, filePath, context) {
     }
 
     // 4. Self-close void elements that aren't self-closed
-    for (const tag of VOID_ELEMENTS) {
-        // Match <tag ... > that is NOT already self-closed (no / before >)
-        const voidRegex = new RegExp(`<${tag}(\\s[^>]*?)?(?<!/)>`, "gi");
-        if (voidRegex.test(code)) {
-            code = code.replace(new RegExp(`<${tag}(\\s[^>]*?)?(?<!/)>`, "gi"), (match, attrs) => `<${tag}${attrs || ""} />`);
-            warnings.push(`${filePath}: Self-closed <${tag}> elements`);
-        }
-    }
+    code = selfCloseVoidElements(code, filePath, warnings);
 
     // 5. Ensure exactly one default export exists
     const defaultExportCount = (code.match(/export\s+default\s+/g) || []).length;
@@ -148,13 +152,7 @@ export function validateRevisionContent(content, filePath, op) {
     }
 
     // Self-close void elements
-    for (const tag of VOID_ELEMENTS) {
-        const voidRegex = new RegExp(`<${tag}(\\s[^>]*?)?(?<!/)>`, "gi");
-        if (voidRegex.test(content)) {
-            content = content.replace(new RegExp(`<${tag}(\\s[^>]*?)?(?<!/)>`, "gi"), (match, attrs) => `<${tag}${attrs || ""} />`);
-            warnings.push(`${filePath}: Self-closed <${tag}> in replacement`);
-        }
-    }
+    content = selfCloseVoidElements(content, filePath, warnings);
 
     return { content, warnings };
 }

@@ -26,6 +26,16 @@ export function AppContextProvider({ children }) {
     const [activeFile, setActiveFile] = useState("/App.js");
     const [showCode, setShowCode] = useState(false);
 
+
+    const [darkMode, setDarkMode] = useState(() => localStorage.getItem("theme") === "dark");
+
+    useEffect(() => {
+        document.documentElement.classList.toggle("dark", darkMode);
+        localStorage.setItem("theme", darkMode ? "dark" : "light");
+    }, [darkMode]);
+
+    const toggleDarkMode = () => setDarkMode((v) => !v);
+
     //Auth Actions
     const checkSession = async () =>{
         try{
@@ -130,7 +140,7 @@ export function AppContextProvider({ children }) {
     useEffect(() => {
         if(!activeProjects?._id || !user) return;
 
-        const isOngoing = activeProjects.status === "generating" || activeProjects.status === "revising";
+        const isOngoing = activeProjects.status === "pending" || activeProjects.status === "generating" || activeProjects.status === "revising";
 
         if(isOngoing){
             setChatLoading(true);
@@ -141,7 +151,6 @@ export function AppContextProvider({ children }) {
         }else{
             setChatLoading(false);
         }
-
     }, [activeProjects?._id, activeProjects?.status, loadProject, user])
 
     const handleGenerate = useCallback(
@@ -253,8 +262,10 @@ React.useEffect(() => {
             generatingProjects,
             activeFile,
             showCode,
+            darkMode,
             setActiveFile,
             setShowCode,
+            toggleDarkMode,
             loadProject,
             loadProjects,
             handleGenerate,

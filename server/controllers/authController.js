@@ -1,7 +1,7 @@
 import { User } from "../models/User.js";
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET =  process.env.JWT_SECRET || "fallback_secret"
+const JWT_SECRET =  process.env.JWT_SECRET ;
 
 //helper to set cookies
 const setSessionCookie = (res, payload) =>{
@@ -59,7 +59,7 @@ export async function login(req, res){
         return;
     }
 
-    const isValid = await user.comparePaswword(password)
+    const isValid = await user.comparePassword(password)
     if(!isValid){
         res.status(401).json({error: "Invalid email or password!"})
         return;

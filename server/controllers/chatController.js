@@ -16,7 +16,7 @@ export function buildManifest(files){
 }
 
 export async function chat(req, res){
-    const {prompt} = req.body();
+    const {prompt} = req.body;
 
     if(!prompt || typeof prompt !== "string"){
         res.status(400).json({error: "prompt is required"});
@@ -57,7 +57,7 @@ export async function chat(req, res){
         `(${manifest.length} files, manifest ~${JSON.stringify(manifest).length} chars)`,);
 
         //Call AI with manifest  + relevant files
-        const result = await reviseProject(prompt, manifest, relevantFiles, recentMessages);
+        const result = await reviseProject(prompt, manifest, relevantFiles, recentMessages, {abortSignal: AbortSignal.timeout(120_000)});
         console.log(`[AI] Got ${result.operations.length} operations: ${result.description}`);
 
         //Apply operations to file map
@@ -100,8 +100,13 @@ export async function chat(req, res){
 
     } catch (err) {
         console.error(`[AI Revision Error] ${err.message}`);
-        project.status = "completed";
-        await project.save();
+        project.status = "failed";
+        project.error = err.message;
+        try {
+            await project.save();
+        } catch (saveErr) {
+           console.error(`[AI Revision Error] Failed to persist failure state:`, saveErr);
+        }
         res.status(500).json({error: err.message || "Failed to process revision  request"});
         
     }

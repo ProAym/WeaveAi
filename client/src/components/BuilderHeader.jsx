@@ -1,75 +1,133 @@
 import React from 'react'
-import {ArrowLeftIcon, Code2Icon, DownloadIcon, ExternalLink, ExternalLinkIcon, EyeIcon, GlobeIcon, Loader2Icon, LogOutIcon} from 'lucide-react'
+import { 
+  ArrowLeftIcon, 
+  Code2Icon, 
+  DownloadIcon, 
+  ExternalLinkIcon, 
+  EyeIcon, 
+  GlobeIcon, 
+  Loader2Icon, 
+  LogOutIcon, 
+  MoonIcon, 
+  SunIcon,
+  SparklesIcon
+} from 'lucide-react'
 
 const BuilderHeader = ({
     projectName,
     version,
     showCode,
     publishing,
+    darkMode,
     onToggleShowCode,
     onOpenPreview,
     onPublish,
     onDownload,
     onBack,
     onLogout,
-    
+    onToggleDarkMode,
 }) => {
   return (
-    <header className='h-12 shrink-0 flex items-center justify-between px-3 border-b
-    border-zinc-200 bg-white'>
-      <div className='flex items-center gap-2'>
-        <button onClick={onBack} aria-label="Go back" className='p-1.5 rounded-md text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100 cursor-pointer'>
-            <ArrowLeftIcon size={16} />
+    <header className='h-13 shrink-0 flex items-center justify-between px-4 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl z-20 transition-colors duration-200 font-sans'>
+      
+      {/* Left Group: Back, Logo, Project Name, Version Badge */}
+      <div className='flex items-center gap-2.5'>
+        <button 
+          onClick={onBack} 
+          aria-label="Go back" 
+          className='p-1.5 rounded-lg text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/80 active:scale-95 transition-all duration-150 cursor-pointer'
+        >
+          <ArrowLeftIcon size={16} />
         </button>
-        <img src="/logo.svg" alt="" className='invert size-5' />
-        <span className='text-sm font-semibold truncate max-w-38 md:max-w-50'>
-          {projectName}</span>
-          <span className='text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500
-          font-medium'>{version}</span>
+
+        <div className="p-1 rounded-lg bg-zinc-100 dark:bg-white/10 border border-zinc-200 dark:border-white/10">
+          <img src="/logo.svg" alt="Logo" className='invert dark:invert-0 size-4' />
+        </div>
+
+        <span className='text-sm font-bold tracking-tight truncate max-w-38 md:max-w-56 text-zinc-900 dark:text-zinc-100'>
+          {projectName}
+        </span>
+
+        {version && (
+          <span className='inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 font-semibold'>
+            <SparklesIcon size={10} />
+            <span>v{version}</span>
+          </span>
+        )}
       </div>
+
+      {/* Right Group: Toggle Mode, Action Buttons, Publish, Logout */}
       <div className='flex items-center gap-1.5'>
-        <button onClick={onToggleShowCode}
-        className={`inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border
-        border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 text-xs
-        font-medium rounded-lg cursor-pointer bg-white ${showCode ? "bg-zinc-100 text-zinc-900" : ""}`}>
+        
+        {/* Toggle Code / Preview */}
+        <button 
+          onClick={onToggleShowCode}
+          className={`inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-200/80 dark:border-zinc-800 text-xs font-semibold rounded-xl cursor-pointer transition-all duration-150 active:scale-95 ${
+            showCode 
+              ? "bg-zinc-900 dark:bg-zinc-800 text-white dark:text-white border-transparent" 
+              : "bg-white/50 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
+          }`}
+        >
           {showCode ? (
             <>
-            <EyeIcon  size={13}/>
+              <EyeIcon size={13} className="text-amber-400" /> 
+              <span>Preview</span>
             </>
-          ): (
+          ) : (
             <>
-            <Code2Icon size = {13} /> Code
+              <Code2Icon size={13} className="text-indigo-400" /> 
+              <span>Code</span>
             </>
           )}
         </button>
-        <button onClick={onOpenPreview} className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border
-        border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 text-xs
-        font-medium rounded-lg cursor-pointer bg-white'>
-          <ExternalLinkIcon  size={13}/> Open Preview
+
+        {/* External Preview Link */}
+        <button 
+          onClick={onOpenPreview} 
+          className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white text-xs font-medium rounded-xl cursor-pointer bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md transition-all duration-150 active:scale-95'
+        >
+          <ExternalLinkIcon size={13}/>
+          <span className="hidden sm:inline">Open Preview</span>
         </button>
 
-        <button onClick={onPublish} disabled = {publishing}
-        className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border
-        border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 text-xs
-        font-medium rounded-lg cursor-pointer bg-white'>
-          {publishing ? <Loader2Icon size={13} className = "animate-spin" /> : <GlobeIcon size={13}/>} Publish
+        {/* Export ZIP Button */}
+        <button 
+          onClick={onDownload}
+          className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white text-xs font-medium rounded-xl cursor-pointer bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md transition-all duration-150 active:scale-95'
+        >
+          <DownloadIcon size={13} />
+          <span className="hidden sm:inline">Export</span>
         </button>
 
-        <button onClick = {onDownload}
-        className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border
-        border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 text-xs
-        font-medium rounded-lg cursor-pointer bg-white'>
-          <DownloadIcon  size = {13} /> Export
+        {/* Dark Mode Toggle */}
+        <button 
+          onClick={onToggleDarkMode} 
+          aria-label="Toggle dark mode"
+          className='p-1.5 rounded-lg text-zinc-400 dark:text-zinc-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 active:scale-95 transition-all duration-150 cursor-pointer ml-0.5'
+        >
+          {darkMode ? <SunIcon size={15} /> : <MoonIcon size={15} />}
         </button>
 
-        <button onClick = {onLogout}
-        className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border
-        border-zinc-200 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 text-xs
-        font-medium rounded-lg cursor-pointer bg-white'>
-          <LogOutIcon size = {13} /> Sign Out
+        <div className='w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1' />
+
+        {/* Publish Action Button */}
+        <button 
+          onClick={onPublish} 
+          disabled={publishing}
+          className='inline-flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-white text-xs font-semibold rounded-xl cursor-pointer bg-gradient-to-r from-red-600 via-amber-600 to-amber-500 hover:from-red-500 hover:to-amber-400 active:scale-95 transition-all duration-150 shadow-md shadow-amber-600/20 disabled:opacity-50 disabled:cursor-not-allowed'
+        >
+          {publishing ? <Loader2Icon size={13} className="animate-spin" /> : <GlobeIcon size={13}/>}
+          <span>Publish</span>
         </button>
 
-
+        {/* Sign Out Button */}
+        <button 
+          onClick={onLogout} 
+          aria-label="Sign out"
+          className='p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 active:scale-95 transition-all duration-150 cursor-pointer ml-0.5'
+        >
+          <LogOutIcon size={14} />
+        </button>
       </div>
 
     </header>
