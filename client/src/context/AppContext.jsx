@@ -66,6 +66,43 @@ export function AppContextProvider({ children }) {
             throw new Error(errMsg);
         }
     }
+    const loginWithGoogle = async(credential) =>{  
+        try{
+            const {data} = await api.post("/api/auth/google", {credential});
+            setUser(data.user);
+            toast.success("Welcome!")
+            navigate("/")
+        }catch(error){
+            console.error("Google login failed:",error);
+            const errMsg = error?.response?.data?.error || "Google sign-in failed";
+            toast.error(errMsg);
+            throw new Error(errMsg);
+        }
+    }
+    const updateUserProfile = async(name, email) =>{
+        try{
+            const {data} = await api.put("/api/auth/profile", {name, email});
+            setUser(data.user);
+            toast.success("Profile updated successfully!")
+        }catch(err){
+            console.error("Profile update failed:", err);
+            const errMsg = err?.response?.data?.error || "Failed to update profile";
+            toast.error(errMsg);
+            throw new Error(errMsg);
+        }
+    }
+
+    const changePassword = async(currentPassword, newPassword) =>{
+        try{
+            await api.put("/api/auth/password", {currentPassword, newPassword});
+            toast.success("Password updated successfully!")
+        }catch(err){
+            console.error("Password update failed:", err);
+            const errMsg = err?.response?.data?.error || "Failed to update password";
+            toast.error(errMsg);
+            throw new Error(errMsg);
+        }
+    }
     const register = async(name, email, password) =>{
         try{
             const {data} = await api.post("/api/auth/register", {name, email, password});
@@ -253,6 +290,7 @@ React.useEffect(() => {
             user,
             loadingUser,
             login,
+            loginWithGoogle,
             register,
             projects,
             loadingProjects,
@@ -272,7 +310,9 @@ React.useEffect(() => {
             handleDelete,
             logout,
             updateProjectFiles,
-            handleChat
+            handleChat,
+            updateUserProfile,
+            changePassword
 
             }}>
             {children}

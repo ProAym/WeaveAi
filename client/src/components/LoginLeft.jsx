@@ -17,10 +17,10 @@ const LoginLeft = () => {
 
       {/* Top Section: Brand Header */}
       <div className="relative z-10 flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 shadow-inner">
-          <img src="/logo.svg" alt="Builder AI Logo" className="size-7" />
+        <div className='flex items-center gap-1'>
+          <img src="/weave_logo_mark.svg" alt="Weave" className='h-9 -mr-1.5' />
+          <span className='text-3xl font-black tracking-tight text-white'>eave</span>
         </div>
-        <span className="text-2xl font-bold tracking-tight text-white">Builder AI</span>
       </div>
 
       {/* Middle Section: Floating Feature Highlights Card */}
@@ -55,7 +55,7 @@ const LoginLeft = () => {
 
       {/* Bottom Section: Footer Copyright */}
       <div className="relative z-10 flex items-center justify-between text-xs text-zinc-500 border-t border-white/10 pt-6">
-        <span>&copy; {new Date().getFullYear()} BuilderAI Inc. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} Weave Inc. All rights reserved.</span>
         <div className="flex items-center gap-1.5 text-zinc-400 font-medium">
           <Cpu className="size-3.5 text-amber-500" />
           <span>v2.4 Powered</span>

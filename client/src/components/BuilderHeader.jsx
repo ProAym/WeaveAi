@@ -40,9 +40,8 @@ const BuilderHeader = ({
           <ArrowLeftIcon size={16} />
         </button>
 
-        <div className="p-1 rounded-lg bg-zinc-100 dark:bg-white/10 border border-zinc-200 dark:border-white/10">
-          <img src="/logo.svg" alt="Logo" className='invert dark:invert-0 size-4' />
-        </div>
+          <img src="/weave_logo_mark.svg" alt="Logo" className='invert dark:invert-0 h-6' />
+        
 
         <span className='text-sm font-bold tracking-tight truncate max-w-38 md:max-w-56 text-zinc-900 dark:text-zinc-100'>
           {projectName}
