@@ -3,6 +3,8 @@ import LoginLeft from '../components/LoginLeft'
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOffIcon, Loader2Icon, MailIcon, LockIcon, UserIcon, SparklesIcon, ArrowRightIcon } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import GoogleSignInButton from '../components/GoogleSignInButton';
+
 
 const AuthPage = ({ mode }) => {
   const { login, register } = useAppContext()
@@ -149,6 +151,16 @@ const AuthPage = ({ mode }) => {
               )}
             </button>
           </form>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">OR</span>
+            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+
+          {/* Google Sign In */}
+          <GoogleSignInButton />
 
           {/* Switch Mode Footer */}
           <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800/80 text-center text-xs text-zinc-500 dark:text-zinc-400">

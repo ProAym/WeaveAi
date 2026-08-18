@@ -24,25 +24,29 @@ const HomePage = () => {
 
       {/* Navigation */}
       <nav className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-zinc-950/60 backdrop-blur-xl border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-xl bg-white/10 border border-white/15 backdrop-blur-md">
-            <img src="/logo.svg" alt="Logo" className="size-5" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-white">BuilderAI</span>
+        <div className="flex items-center gap-1.5">
+          <img 
+            src="/weave_logo_mark.svg" 
+            alt="Weave" 
+            className="h-7 -mr-1.5 translate-y-[1px]" 
+          />
+          <span className="text-2xl font-black tracking-tight text-white">eave</span>
         </div>
 
         <div className="flex items-center gap-3 text-xs font-medium text-zinc-300">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+          <button
+            onClick={() => navigate("/profile")}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-150 active:scale-95 cursor-pointer"
+          >
             <UserIcon size={13} className="text-amber-400" />
             <span className="text-zinc-200">{user?.name}</span>
-          </div>
+          </button>
 
           <button 
             onClick={logout} 
             className="inline-flex items-center gap-1.5 py-1.5 px-3 border border-white/15 text-zinc-300 hover:text-white hover:bg-white/10 text-xs font-medium rounded-lg cursor-pointer bg-white/5 transition-all duration-150 active:scale-95"
           >
             <LogOutIcon size={13} />
-            <span>Sign out</span>
           </button>
         </div>
       </nav>
