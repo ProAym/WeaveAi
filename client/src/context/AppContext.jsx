@@ -66,19 +66,30 @@ export function AppContextProvider({ children }) {
             throw new Error(errMsg);
         }
     }
-    const loginWithGoogle = async(credential) =>{  
-        try{
-            const {data} = await api.post("/api/auth/google", {credential});
-            setUser(data.user);
-            toast.success("Welcome!")
-            navigate("/")
-        }catch(error){
-            console.error("Google login failed:",error);
-            const errMsg = error?.response?.data?.error || "Google sign-in failed";
-            toast.error(errMsg);
-            throw new Error(errMsg);
-        }
+    const loginWithGoogle = async (credential) => {  
+    try {
+        // Send both 'token' and 'credential' so backend receives whichever it expects
+        const { data } = await api.post("/api/auth/google", { 
+            token: credential,
+            credential 
+        });
+        
+        setUser(data.user);
+        toast.success("Welcome!");
+        navigate("/");
+    } catch (error) {
+        console.error("Google login failed:", error);
+        
+        // Ensure error message is explicitly a STRING to avoid React rendering object crashes
+        const errMsg = 
+            typeof error?.response?.data?.error === "string"
+                ? error.response.data.error
+                : error?.response?.data?.message || "Google sign-in failed";
+                
+        toast.error(errMsg);
+        throw new Error(errMsg);
     }
+};
     const updateUserProfile = async(name, email) =>{
         try{
             const {data} = await api.put("/api/auth/profile", {name, email});
