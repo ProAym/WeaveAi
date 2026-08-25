@@ -8,8 +8,6 @@ import projectRouter from "./routes/projectRoute.js";
 
 const app = express();
 
-const app = express();
-
 // CRITICAL for Render/Vercel cross-domain HTTPS cookies
 app.set("trust proxy", 1);
 
