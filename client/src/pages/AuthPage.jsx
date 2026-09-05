@@ -51,6 +51,12 @@ const AuthPage = ({ mode }) => {
 
         <div className="w-full max-w-md bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-zinc-200/80 dark:border-zinc-800/80 p-8 rounded-2xl shadow-xl shadow-zinc-200/50 dark:shadow-none z-10 transition-colors duration-200">
           
+          {/* Mobile-only Brand Header — desktop shows LoginLeft instead */}
+          <div className="lg:hidden flex items-center justify-center gap-1 mb-6">
+            <img src="/weave_logo_mark.svg" alt="Weave" className="h-7 -mr-1" />
+            <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white">eave</span>
+          </div>
+
           {/* Header Badge & Title */}
           <div className="mb-8">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[11px] font-medium text-zinc-600 dark:text-zinc-300 mb-3">
