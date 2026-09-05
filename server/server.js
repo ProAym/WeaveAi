@@ -8,7 +8,7 @@ import projectRouter from "./routes/projectRoute.js";
 
 const app = express();
 
-await connectToDatabase()
+
 
 app.use(cors({origin: process.env.ORIGINS.split(","), credentials: true}))
 app.use(cookieParser())
@@ -23,7 +23,7 @@ app.use('/api/projects', projectRouter )
 //Centralized error handler
 app.use((err, _req, res, _next)=>{
     console.error("[Error]", err);
-    if (res.headersSent) return next(err);
+    if (res.headersSent) return _next(err);
     res.status(500).json({error: "Internal server error"});
 })
 
