@@ -76,18 +76,19 @@ const HomePage = () => {
         </div>
 
         <div className="flex items-center gap-3 text-xs font-medium text-zinc-300">
-          {/* Hamburger — mobile only, opens the projects drawer */}
+          {/* Hamburger — mobile only, opens the drawer (profile + sign out + projects) */}
           <button
             onClick={() => setDrawerOpen(true)}
-            aria-label="Open projects menu"
+            aria-label="Open menu"
             className="md:hidden flex items-center gap-1.5 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-150 active:scale-95 cursor-pointer"
           >
             <MenuIcon size={15} className="text-zinc-200" />
           </button>
 
+          {/* Profile + Sign out — desktop only, moved into the drawer on mobile */}
           <button
             onClick={() => navigate("/profile")}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-150 active:scale-95 cursor-pointer"
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-150 active:scale-95 cursor-pointer"
           >
             <UserIcon size={13} className="text-amber-400" />
             <span className="text-zinc-200">{user?.name}</span>
@@ -95,7 +96,7 @@ const HomePage = () => {
 
           <button 
             onClick={logout} 
-            className="inline-flex items-center gap-1.5 py-1.5 px-3 border border-white/15 text-zinc-300 hover:text-white hover:bg-white/10 text-xs font-medium rounded-lg cursor-pointer bg-white/5 transition-all duration-150 active:scale-95"
+            className="hidden md:inline-flex items-center gap-1.5 py-1.5 px-3 border border-white/15 text-zinc-300 hover:text-white hover:bg-white/10 text-xs font-medium rounded-lg cursor-pointer bg-white/5 transition-all duration-150 active:scale-95"
           >
             <LogOutIcon size={13} />
           </button>
@@ -185,14 +186,8 @@ const HomePage = () => {
 
           {/* Drawer Panel */}
           <div className="relative w-[85%] max-w-sm h-full bg-zinc-950 border-l border-white/10 flex flex-col animate-slide-in-side">
-            <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <FolderCodeIcon size={14} className="text-indigo-400" />
-                <p className="text-xs font-semibold uppercase text-zinc-300 tracking-wider">All projects</p>
-                <span className="text-xs text-zinc-400 font-medium px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
-                  {projects.length}
-                </span>
-              </div>
+            {/* Drawer Header: close button */}
+            <div className="flex items-center justify-end px-4 py-3 border-b border-white/10">
               <button 
                 onClick={() => setDrawerOpen(false)} 
                 aria-label="Close menu"
@@ -200,6 +195,39 @@ const HomePage = () => {
               >
                 <XIcon size={16} />
               </button>
+            </div>
+
+            {/* Profile + Sign out */}
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10">
+              <button
+                onClick={() => {
+                  setDrawerOpen(false);
+                  navigate("/profile");
+                }}
+                className="flex items-center gap-2.5 min-w-0 cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                  <UserIcon size={14} className="text-amber-400" />
+                </div>
+                <span className="text-sm font-semibold text-zinc-100 truncate">{user?.name}</span>
+              </button>
+
+              <button 
+                onClick={logout} 
+                aria-label="Sign out"
+                className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 cursor-pointer transition-all duration-150 active:scale-95 shrink-0"
+              >
+                <LogOutIcon size={15} />
+              </button>
+            </div>
+
+            {/* Projects Header */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
+              <FolderCodeIcon size={14} className="text-indigo-400" />
+              <p className="text-xs font-semibold uppercase text-zinc-300 tracking-wider">All projects</p>
+              <span className="text-xs text-zinc-400 font-medium px-2 py-0.5 rounded-full bg-white/5 border border-white/10">
+                {projects.length}
+              </span>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-2.5 hide-scrollbar">
