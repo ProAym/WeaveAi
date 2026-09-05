@@ -61,7 +61,7 @@ const AuthPage = ({ mode }) => {
           <div className="mb-8">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[11px] font-medium text-zinc-600 dark:text-zinc-300 mb-3">
               <SparklesIcon size={12} className="text-amber-500 dark:text-amber-400" />
-              <span>BuilderAI Platform</span>
+              <span>Weave Platform</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-2">
               {isLogin ? "Welcome back" : "Create an account"}
@@ -172,7 +172,7 @@ const AuthPage = ({ mode }) => {
           <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800/80 text-center text-xs text-zinc-500 dark:text-zinc-400">
             {isLogin ? (
               <>
-                New to BuilderAI?{" "}
+                New to Weave?{" "}
                 <Link
                   to="/register"
                   className="font-semibold text-zinc-900 dark:text-zinc-100 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
