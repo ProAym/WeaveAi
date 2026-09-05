@@ -170,22 +170,29 @@ const PreviewPanel = ({ project, activeFile, showCode }) => {
                         }}
                     >
                         {showCode && (
-                            <SandpackCodeEditor 
-                                showTabs 
-                                showLineNumbers 
-                                showInlineErrors
-                                wrapContent 
-                                style={{ height: "100%", flex: 1, minWidth: 0 }}
-                            />
+                            <div className={showCode ? "flex md:flex" : "hidden"} style={{ height: "100%", flex: 1, minWidth: 0 }}>
+                                <SandpackCodeEditor 
+                                    showTabs 
+                                    showLineNumbers 
+                                    showInlineErrors
+                                    wrapContent 
+                                    style={{ height: "100%", width: "100%" }}
+                                />
+                            </div>
                         )}
-
-                        <SandpackPreview 
-                            showNavigator={false} 
-                            showRefreshButton 
-                            showOpenInCodeSandbox={false}
-                            showSandpackErrorOverlay={showErrorOverlay}
+                    
+                        <div 
+                            className={showCode ? "hidden md:flex" : "flex"} 
                             style={{ height: "100%", flex: showCode ? 1 : 2, minWidth: 0 }}
-                        />
+                        >
+                            <SandpackPreview 
+                                showNavigator={false} 
+                                showRefreshButton 
+                                showOpenInCodeSandbox={false}
+                                showSandpackErrorOverlay={showErrorOverlay}
+                                style={{ height: "100%", width: "100%" }}
+                            />
+                        </div>
                     </SandpackLayout>
                 </SandpackProvider>
             </div>
