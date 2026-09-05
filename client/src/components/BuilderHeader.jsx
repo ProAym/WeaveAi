@@ -61,7 +61,7 @@ const BuilderHeader = ({
         {/* Toggle Code / Preview */}
         <button 
           onClick={onToggleShowCode}
-          className={`hidden md:inline-flex inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-200/80 dark:border-zinc-800 text-xs font-semibold rounded-xl cursor-pointer transition-all duration-150 active:scale-95 ${
+          className={`hidden md:inline-flex items-center justify-center gap-1.5 py-1.5 px-3 border border-zinc-200/80 dark:border-zinc-800 text-xs font-semibold rounded-xl cursor-pointer transition-all duration-150 active:scale-95 ${
             showCode 
               ? "bg-zinc-900 dark:bg-zinc-800 text-white dark:text-white border-transparent" 
               : "bg-white/50 dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
