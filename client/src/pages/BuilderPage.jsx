@@ -20,6 +20,8 @@ const BuilderPage = () => {
   const [leftTab, setLeftTab] = useState("chat");
   const [publishing, setPublishing] = useState(false);
   const [publishUrl, setPublishUrl] = useState(null);
+  const [mobileView, setMobileView] = useState("sidebar"); // "sidebar" | "preview"
+
 
   const {
     activeProjects, 
@@ -96,7 +98,11 @@ const BuilderPage = () => {
       {/* Main Builder Area */}
       <div className='flex-1 flex overflow-hidden z-10'>
         {/* Left Side Bar Container */}
-        <div className="w-[320px] shrink-0 flex flex-col border-r border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl shadow-zinc-200/50 dark:shadow-none transition-colors duration-200">
+        <div className={`
+    w-full md:w-[320px] shrink-0 flex-col border-r border-zinc-200/80 dark:border-zinc-800/80 
+    bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl
+    ${mobileView === "sidebar" ? "flex" : "hidden md:flex"}
+  `}>
           
           {/* Sidebar Tabs Header */}
           <div className='relative flex border-b border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-950/40 p-1 gap-1'>
@@ -143,7 +149,10 @@ const BuilderPage = () => {
         </div>
 
         {/* Right Preview / Code Area */}
-        <div key={activeProjects.status} className='flex-1 overflow-hidden animate-fade-in bg-zinc-100/50 dark:bg-zinc-950/50'>
+        <div key={activeProjects.status} className={`
+    flex-1 overflow-hidden animate-fade-in bg-zinc-100/50 dark:bg-zinc-950/50
+    ${mobileView === "preview" ? "block" : "hidden md:block"}
+  `}>
           {activeProjects.status === "pending" || 
           activeProjects.status === "generating" || 
           activeProjects.status === "failed" ? (
@@ -152,6 +161,11 @@ const BuilderPage = () => {
             <PreviewPanel project={activeProjects} activeFile={activeFile} showCode={showCode} />
           )}
         </div>
+      </div>
+      {/* Mobile-only view switcher, e.g. in the header or as a floating toggle */}
+      <div className="md:hidden flex border-t border-zinc-200 dark:border-zinc-800">
+        <button onClick={() => setMobileView("sidebar")} className={mobileView === "sidebar" ? "font-bold" : ""}>Chat/Files</button>
+        <button onClick={() => setMobileView("preview")} className={mobileView === "preview" ? "font-bold" : ""}>Preview</button>
       </div>
 
       {/* Publish Modal */}
